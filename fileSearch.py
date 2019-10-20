@@ -2,11 +2,14 @@ import pandas as pd
 import numpy as np
 from math import isclose
 from sys import exit
+import FacebookChallenge
+import csv  
+
 
 # Sample part 3 implementation file
-file = "3001120103003.csv"
+file = newFile
 f = pd.read_csv(file)
-row = 228233
+row = result
 targetLat = f.loc[row]["latitude"]
 targetLon = f.loc[row]["longitude"]
 
@@ -23,9 +26,9 @@ print()
 cur_traverse = 1 # for each lat iteration
 adj_traverse = 0 # for each lon iteration
 max_traverse = 100000 # max iterations (readjusted when there is a new optimal lat/lon)
-i = 1 # lat interval (1 so it doesn't count itself)
-j = 1 # long interval (1 so it doesn't count itself)
-
+i = 0 # lat interval (1 so it doesn't count itself)
+j = 0 # long interval (1 so it doesn't count itself)
+man_dist = 0
 
 #### SEARCH ####
 while cur_traverse < max_traverse:
@@ -63,7 +66,7 @@ while cur_traverse < max_traverse:
 			optLong = minLonP
 			max_traverse = cur_traverse
 			cur_traverse = adj_traverse
-			i = 1
+			i = 0
 			j += kP
 
 		if minValLatN > 75: 
@@ -72,7 +75,7 @@ while cur_traverse < max_traverse:
 			optLong = minLonN
 			max_traverse = cur_traverse
 			cur_traverse = adj_traverse
-			i = 1
+			i = 0
 			j += kN
 
 		i += 1
@@ -80,6 +83,13 @@ while cur_traverse < max_traverse:
 
 	adj_traverse += 1
 
+man_dist = abs(abs(targetLat) - abs(optLat)) + abs(abs(targetLon) - abs(optLon))
+
 print("CLOSEST: ")
 print(optLat)
 print(optLong)
+print(man_dist)
+
+with open('results_csv.csv', 'a') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	spamwriter.writerow([optLat, optLong, man_dist])
