@@ -25,23 +25,30 @@ adj_traverse = 0 # for each lon iteration
 max_traverse = 100000 # max iterations (readjusted when there is a new optimal lat/lon)
 i = 1 # lat interval (1 so it doesn't count itself)
 j = 1 # long interval (1 so it doesn't count itself)
-notFound = True
-k = 1 # long increment (1 so it doesn't count itself)
-while notFound: 
-	if isclose(targetLon, f.loc[row + k]["longitude"], rel_tol=0e-13, abs_tol=0.0): 
-		notFound = False
-	else:
-		k += 1
 
 
-print(k)
 #### SEARCH ####
 while cur_traverse < max_traverse:
 	n_val = 0
+	notFoundP = True
+	notFoundN = True
+	kP = 1
+	kN = -1
 
-	minLonP = f.loc[row + j*k]["longitude"]
-	minLonN = f.loc[row - j*k]["longitude"]
+	while notFoundP: 
+		if isclose(targetLon, f.loc[row + kP]["longitude"], rel_tol=0e-13, abs_tol=0.0): 
+			notFoundP = False
+		else:
+			kP += 1
 
+	while notFoundN: 
+		if isclose(targetLon, f.loc[row - kN]["longitude"], rel_tol=0e-13, abs_tol=0.0): 
+			notFoundN = False
+		else:
+			kN -= 1
+
+	minLonP = f.loc[row + (j + kP)]["longitude"]
+	minLonN = f.loc[row - (j + kN)]["longitude"]
 	
 	while n_val <= 75:
 		minLatP = f.loc[row + i]["latitude"]
@@ -49,7 +56,6 @@ while cur_traverse < max_traverse:
 		minValLatP = f.loc[row + i]["val"]
 		minValLatN = f.loc[row - i]["val"]
 
-		print(f.loc[row + j*k]["longitude"])
 
 		if minValLatP > 75: 
 			n_val = minValLatP
@@ -57,6 +63,8 @@ while cur_traverse < max_traverse:
 			optLong = minLonP
 			max_traverse = cur_traverse
 			cur_traverse = adj_traverse
+			i = 1
+			j += kP
 
 		if minValLatN > 75: 
 			n_val = minValLatN
@@ -64,13 +72,14 @@ while cur_traverse < max_traverse:
 			optLong = minLonN
 			max_traverse = cur_traverse
 			cur_traverse = adj_traverse
+			i = 1
+			j += kN
 
 		i += 1
 		cur_traverse += 1
 
 	adj_traverse += 1
-	j += 1
 
-print()
+print("CLOSEST: ")
 print(optLat)
 print(optLong)
